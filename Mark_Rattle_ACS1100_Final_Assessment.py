@@ -40,14 +40,12 @@ def authenticate():
     if input_username in account_info:
         if input_password == account_info[input_username][0]:
             print("Access granted!")
-            authenticated_user = input_username    
+            authenticated_user = input_username
+            return authenticated_user    
         else:
             print("User name and password not found.")
-            authenticated_user = ''
     else:
         print("User name and password not found.")
-        authenticated_user = ''
-    return authenticated_user 
 
 def display_information(authenticated_user):
     '''
