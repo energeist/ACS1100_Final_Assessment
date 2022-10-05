@@ -32,8 +32,6 @@ def authenticate():
     Input - nothing
     Return - input_username (string): authenticated username
     '''
-    input_username = ''
-    input_password = ''
     input_username = input("Please input your username > ")
     input_password = input("Please enter your password > ")
 
@@ -49,10 +47,7 @@ def authenticate():
     else:
         print("User name and password not found.")
         authenticated_user = ''
-    input_username = ''
-    input_password = ''
-    return authenticated_user
-     
+    return authenticated_user 
 
 def display_information(authenticated_user):
     '''
@@ -67,7 +62,7 @@ def get_option():
     '''
     A function to get option input for extra functions from the user.  Loops until the user is done.
     Input - none
-    Return - 
+    Return - none
     '''
     option_loop = True
     while option_loop == True:
@@ -75,7 +70,7 @@ def get_option():
 Account options:
 1 - Deposit
 2 - Withdraw
-3 - Transfer to another user's account (WIP)
+3 - Transfer to another user's account
 4 - Display current balance
 0 - Exit
 
@@ -97,6 +92,10 @@ Account options:
 def untuple(authenticated_user, account_info):
     '''
     A function that unpacks a tuple so that balance can be modified and packed back into the dict
+    This is super ugly but I'm not sure how to quickly break a tuple into something mutable
+    Input - authenticated_user (string): currently authenticated username
+        account_info (dict): user info dict
+    Return - Info_package (list): Returns a list of current user info that is mutable because I found out that I accidentally built myself into a corner with tuples.
     '''
     password = account_info[authenticated_user][0]
     full_name = account_info[authenticated_user][1]
@@ -115,8 +114,6 @@ def deposit(authenticated_user, account_info):
     deposit_amount = input("Please enter a deposit amount. This terminal can only accept up to $9000 at a time > ")
     while re.match("[^0-9\.\$]*$", deposit_amount) or float(deposit_amount.strip('$')) <= 0 or float(deposit_amount.strip('$')) > 9000:
         deposit_amount = input("Not a valid deposit amount.  Please enter a number greater than 0, with a $9000 limit > ")
-
-    # this is super ugly but I'm not sure how to quickly break a tuple into something mutable
 
     deposit_amount = float(deposit_amount)
     account_info[authenticated_user] = info_package[0], info_package[1], (info_package[2] + deposit_amount)
@@ -143,23 +140,24 @@ def withdraw(authenticated_user, account_info):
 def transfer(authenticated_user, account_info):
     '''
     A function to transfer balances between accounts.  Takes a username for the account to be transferred to and transfers user input amount.
-    
+    Input - authenticated_user (string): currently authenticated username
+            account_info (dict): user info dict
+    Return - none
     '''
-    transfer_user = ''
-    info_package = untuple(authenticated_user, account_info)
-    if info_package[2] > 0:
-        while transfer_user not in account_info:
-            transfer_user = input("Please enter the username of the account you would like to transfer to > ") 
-        transfer_amount = input(f"Your current balance is: ${account_info[authenticated_user][2]}. Please enter an amount to transfer to {[account_info[transfer_user][1]]}, up to your current balance > ")
+    transfer_to_user = ''
+    info_package_send = untuple(authenticated_user, account_info)
+    if info_package_send[2] > 0:
+        while transfer_to_user not in account_info:
+            transfer_to_user = input("Please enter the username of the account you would like to transfer to > ") 
+        transfer_amount = input(f"Your current balance is: ${account_info[authenticated_user][2]}. Please enter an amount to transfer to {[account_info[transfer_to_user][1]]}, up to your current balance > ")
         while re.match("[^0-9\.\$]*$", transfer_amount) or float(transfer_amount.strip('$')) <= 0 or float(transfer_amount.strip('$')) > account_info[authenticated_user][2]:
-            transfer_amount = input(f"Not a valid amount to withdraw.  Please enter a number greater than 0, up to ${account_info[authenticated_user][2]} > ")
+            transfer_amount = input(f"Not a valid amount to transfer. Please enter a number greater than 0, up to ${account_info[authenticated_user][2]} > ")
         transfer_amount = float(transfer_amount)
-        account_info[authenticated_user] = info_package[0], info_package[1], (info_package[2] - transfer_amount)
-        info_package = untuple(transfer_user, account_info)
-        # print(untuple(transfer_user, account_info))
-        account_info[transfer_user] = info_package[0], info_package[1], (info_package[2] + transfer_amount)
+        account_info[authenticated_user] = info_package_send[0], info_package_send[1], (info_package_send[2] - transfer_amount)
+        info_package_rcv = untuple(transfer_to_user, account_info)
+        account_info[transfer_to_user] = info_package_rcv[0], info_package_rcv[1], (info_package_rcv[2] + transfer_amount)
 
-# Program are calls here, currently infinitely loops until force close
+# Program are calls here, loops until the user wants to quit
 
 get_accounts(user_file)
 keep_repeating = True
