@@ -17,7 +17,9 @@ def get_accounts(user_file):
     Input - user_info (string): location of the data.txt file as a string
     Return - account_info (dict): compiled dict of usernames as keys + associated info as values
     '''
-    file_lines = open(user_file, "r").readlines()
+    infile = open(user_file, "r")
+    file_lines = infile.readlines()
+    infile.close()
     for line in file_lines:
         split_line_list = line.rstrip().split(",")
         username = split_line_list[0]
@@ -25,6 +27,7 @@ def get_accounts(user_file):
         full_name = split_line_list[2]
         balance = float(split_line_list[3])
         account_info[username] = password, full_name, balance
+
 
 def authenticate():
     '''
